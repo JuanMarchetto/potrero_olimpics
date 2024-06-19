@@ -1,12 +1,15 @@
 use anchor_lang::prelude::*;
+use anchor_lang::system_program;
 
-declare_id!("5bJEJvsNtYXWMyqecqV8dr8Tdip6pqPbM1iaNVbUr3iK");
+declare_id!("7JawXA6bWsbYvdp98qMhp1Noo5TxUUCmmHjMWfccfRy4");
 
 const PROJECT_TREASURY: &str = "GtrjYbtvJ9T5oP1P64gY2yBLXcDtKERgNp5o1k6ty7Mj";
 #[program]
 pub mod potrero_olimpcs {
 
     use std::str::FromStr;
+
+    use anchor_lang::solana_program;
 
     use super::*;
 
@@ -29,6 +32,7 @@ pub mod potrero_olimpcs {
     pub fn make_prediction(
         ctx: Context<MakePrediction>,
         _name: String,
+        _seed: u64,
         gold: u8,
         silver: u8,
         bronze: u8,
@@ -48,20 +52,14 @@ pub mod potrero_olimpcs {
             bump: ctx.bumps.prediction,
         });
 
-        let transfer_instruction = anchor_lang::solana_program::system_instruction::transfer(
-            ctx.accounts.player.to_account_info().key,
-            ctx.accounts.project_treasury.to_account_info().key,
-            100,
+        let cpi_context = CpiContext::new(
+            ctx.accounts.system_program.to_account_info(),
+            system_program::Transfer {
+                from: ctx.accounts.player.to_account_info().clone(),
+                to: ctx.accounts.project_treasury.clone(),
+            },
         );
-
-        let _ = anchor_lang::solana_program::program::invoke(
-            &transfer_instruction,
-            &[
-                ctx.accounts.player.to_account_info(),
-                ctx.accounts.project_treasury.to_account_info(),
-            ],
-        );
-
+        system_program::transfer(cpi_context, 100_000)?;
         Ok(())
     }
 }
@@ -99,10 +97,11 @@ pub struct MakePrediction<'info> {
         payer = player,
         seeds = [b"PodiumPrediction".as_ref(),  _name.as_ref(), player.key().as_ref(), seed.to_le_bytes().as_ref()],
         bump,
-        space =  8 + PodiumPrediction::INIT_SPACE,
+        space =  16 + PodiumPrediction::INIT_SPACE,
     )]
     pub prediction: Account<'info, PodiumPrediction>,
     /// CHECK: This should match a constan Pubkey in the program
+    #[account(mut)]
     pub project_treasury: AccountInfo<'info>,
     pub system_program: Program<'info, System>,
 }

@@ -5,7 +5,7 @@ seeds = false
 skip-lint = false
 
 [programs.localnet]
-potrero_olimpcs = "5bJEJvsNtYXWMyqecqV8dr8Tdip6pqPbM1iaNVbUr3iK"
+potrero_olimpcs = "7JawXA6bWsbYvdp98qMhp1Noo5TxUUCmmHjMWfccfRy4"
 
 [registry]
 url = "https://api.apr.dev"
