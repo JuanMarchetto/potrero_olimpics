@@ -49,7 +49,7 @@ pub struct Initialize<'info> {
         space = 40,
     )]
     pub oracle_event: Account<'info, OracleEvent>,
-    /// Check: we just passing it to store the pubkey
+    /// CHECK: we just passing it to store the pubkey
     pub resolver: UncheckedAccount<'info>,
     pub system_program: Program<'info, System>,
 
